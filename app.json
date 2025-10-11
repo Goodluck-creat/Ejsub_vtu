@@ -87,7 +87,9 @@
     "extra": {
       "websiteUrl": "https://www.ejsub.com/",
       "eas": {
-      }
+        "projectId": "4c01fdf8-9367-4081-a7a6-e18ac92110af"
+      },
+      "router": {}
     }
   }
 }
