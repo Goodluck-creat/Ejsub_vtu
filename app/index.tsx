@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, BackHandler, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
@@ -9,6 +9,20 @@ export default function HomePage() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const [isLoading, setIsLoading] = useState(true);
+  const [canGoBack, setCanGoBack] = useState(false);
+  const webViewRef = useRef<WebView>(null);
+  
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (canGoBack && webViewRef.current) {
+        webViewRef.current.goBack();
+        return true; // Prevent default behavior (closing the app)
+      }
+      return false; // Allow default behavior (close the app)
+    });
+
+    return () => backHandler.remove();
+  }, [canGoBack]);
   
   return (
     <SafeAreaView 
@@ -20,6 +34,7 @@ export default function HomePage() {
     >
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <WebView 
+        ref={webViewRef}
         source={{ uri: 'https://www.ejsub.com/' }}
         style={styles.webview}
         startInLoadingState={true}
@@ -27,6 +42,7 @@ export default function HomePage() {
         domStorageEnabled={true}
         onLoadStart={() => setIsLoading(true)}
         onLoadEnd={() => setIsLoading(false)}
+        onNavigationStateChange={(navState) => setCanGoBack(navState.canGoBack)}
       />
       {isLoading && (
         <View style={styles.loadingContainer}>
